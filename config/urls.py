@@ -22,6 +22,7 @@ urlpatterns = [
     # User management
     path("users/", include("isfahan.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
+    path("api/v1.0/", include("market.urls")),
     # Your stuff: custom urls includes go here
     # ...
     # Media files

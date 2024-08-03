@@ -85,6 +85,8 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "isfahan.users",
+    'isfahan.market'
+
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
