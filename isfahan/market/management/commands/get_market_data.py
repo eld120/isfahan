@@ -9,11 +9,11 @@ from market.models import Stock
 
 from config.settings.base import BASE_DIR
 
-API_DAILY_LIMIT = 100
+API_DAILY_LIMIT = 90
 # ruff: noqa: PTH123
 
 
-class MarketCommand(BaseCommand):
+class Command(BaseCommand):
     help = "get's the most recent market data from the Market Data API"
 
     def handle(self, *args: Any, **options: Any) -> str | None:
@@ -21,7 +21,7 @@ class MarketCommand(BaseCommand):
         stocks = []
         top_99 = []
         # initial load of companies into the DB
-        stock_file = Path(r"C:/Users/seyam/Downloads/stocks_2.csv")
+        stock_file = Path(f"{BASE_DIR}/isfahan/market/management/stocks_2.csv.csv")
 
         with open(stock_file) as f:
             file = csv.DictReader(f)
