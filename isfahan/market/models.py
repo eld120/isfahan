@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+
 # Create your models here.
 
 
@@ -9,21 +10,19 @@ class Stock(models.Model):
 
     name : User Defined/Provided
     symbol : ticker
-    
+
     """
 
     name = models.CharField(max_length=50)
     ticker = models.CharField(max_length=6)
     slug = models.SlugField(blank=True)
 
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.ticker)
-        super(Stock, self).save(*args, **kwargs)
-
     def __str__(self):
         return str(self.name)
-    
 
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.ticker)
+        super().save(*args, **kwargs)
 
 
 class StockImport(models.Model):
@@ -40,17 +39,16 @@ class StockImport(models.Model):
     """
 
     stock = models.ForeignKey("market.Stock", on_delete=models.CASCADE)
-    price = models.DecimalField(max_digits=5, decimal_places=2)
+    price = models.DecimalField(max_digits=19, decimal_places=4)
     date = models.DateField(auto_now=False, auto_now_add=False)
-    change = models.DecimalField(max_digits=5, decimal_places=2)
-    change_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    change = models.DecimalField(max_digits=19, decimal_places=4)
+    change_percentage = models.DecimalField(max_digits=10, decimal_places=4)
     volume = models.IntegerField()
     slug = models.SlugField(blank=True)
 
-    def save(self, *args, **kwargs):
-        self.slug = slugify(f'{self.stock} {self.date}')
-        super(StockImport, self).save(*args, **kwargs)
-
     def __str__(self):
         return f"{self.stock} {self.date}"
-    
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(f"{self.stock} {self.date}")
+        super().save(*args, **kwargs)
