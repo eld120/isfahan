@@ -9,10 +9,11 @@ class Stock(models.Model):
 
     name : User Defined/Provided
     symbol : ticker
+    
     """
 
     name = models.CharField(max_length=50)
-    ticker = models.CharField(max_length=50)
+    ticker = models.CharField(max_length=6)
     slug = models.SlugField(blank=True)
 
     def save(self, *args, **kwargs):
@@ -20,7 +21,7 @@ class Stock(models.Model):
         super(Stock, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
     
 
 
