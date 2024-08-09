@@ -50,5 +50,5 @@ class StockImport(models.Model):
         return f"{self.stock} {self.date}"
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(f"{self.stock} {self.date}")
+        self.slug = slugify(f"{self.id} {self.stock} {self.date}")
         super().save(*args, **kwargs)
