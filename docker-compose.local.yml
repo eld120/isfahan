@@ -1,7 +1,7 @@
 volumes:
   isfahan_local_postgres_data: {}
   isfahan_local_postgres_data_backups: {}
-  
+
 
 services:
   django:
@@ -18,7 +18,7 @@ services:
       - ./.envs/.local/.django
       - ./.envs/.local/.postgres
     ports:
-      - '8000:8000'
+      - '8088:8088'
     command: /start
 
   postgres:
