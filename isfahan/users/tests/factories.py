@@ -8,12 +8,8 @@ from factory.django import DjangoModelFactory
 from isfahan.users.models import User
 
 
-<<<<<<< HEAD
-class UserFactory(DjangoModelFactory):
-=======
 class UserFactory(DjangoModelFactory[User]):
     username = Faker("user_name")
->>>>>>> seya/apiv1.0
     email = Faker("email")
     name = Faker("name")
 
@@ -42,8 +38,4 @@ class UserFactory(DjangoModelFactory[User]):
 
     class Meta:
         model = User
-<<<<<<< HEAD
-        django_get_or_create = ["email"]
-=======
         django_get_or_create = ["username"]
->>>>>>> seya/apiv1.0

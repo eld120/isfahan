@@ -1,9 +1,5 @@
 # define an alias for the specific python version used in this file.
-<<<<<<< HEAD
-FROM docker.io/python:3.12.4-slim-bookworm AS python
-=======
 FROM docker.io/python:3.12.5-slim-bookworm AS python
->>>>>>> seya/apiv1.0
 
 # Python build stage
 FROM python AS python-build-stage

@@ -23,11 +23,7 @@ class TestUserAdminCreationForm:
         # hence cannot be created.
         form = UserAdminCreationForm(
             {
-<<<<<<< HEAD
-                "email": user.email,
-=======
                 "username": user.username,
->>>>>>> seya/apiv1.0
                 "password1": user.password,
                 "password2": user.password,
             },
@@ -35,10 +31,5 @@ class TestUserAdminCreationForm:
 
         assert not form.is_valid()
         assert len(form.errors) == 1
-<<<<<<< HEAD
-        assert "email" in form.errors
-        assert form.errors["email"][0] == _("This email has already been taken.")
-=======
         assert "username" in form.errors
         assert form.errors["username"][0] == _("This username has already been taken.")
->>>>>>> seya/apiv1.0
