@@ -38,7 +38,11 @@ class StockImport(models.Model):
     volume : volume
     """
 
-    stock = models.ForeignKey("market.Stock", on_delete=models.CASCADE)
+    stock = models.ForeignKey(
+        "market.Stock",
+        on_delete=models.CASCADE,
+        unique_for_date="price",
+    )
     price = models.DecimalField(max_digits=19, decimal_places=4)
     date = models.DateField(auto_now=False, auto_now_add=False)
     change = models.DecimalField(max_digits=19, decimal_places=4)
@@ -50,5 +54,34 @@ class StockImport(models.Model):
         return f"{self.stock} {self.date}"
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(f"{self.stock} {self.date}")
+        self.slug = slugify(f"{self.id} {self.stock} {self.date}")
+        super().save(*args, **kwargs)
+
+
+class StockPrice(models.Model):
+    """
+    Represents a Stock price at a given time
+    Import Stock data from the Market Data API -> StockImport Model
+
+    stock : get_model_or_404(symbol, Stock) # something like this
+    price : Close
+    date : Timestamp
+    volume : volume
+    """
+
+    stock = models.ForeignKey(
+        "market.Stock",
+        on_delete=models.CASCADE,
+        unique_for_date="date",
+    )
+    price = models.DecimalField(max_digits=19, decimal_places=4)
+    date = models.DateField(auto_now=False, auto_now_add=False)
+    volume = models.IntegerField()
+    slug = models.SlugField(blank=True)
+
+    def __str__(self):
+        return f"{self.stock} {self.date}"
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(f"{self.id} {self.stock} {self.date}")
         super().save(*args, **kwargs)
