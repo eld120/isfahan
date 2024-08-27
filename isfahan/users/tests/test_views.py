@@ -40,7 +40,11 @@ class TestUserUpdateView:
         request.user = user
 
         view.request = request
+<<<<<<< HEAD
         assert view.get_success_url() == f"/users/{user.pk}/"
+=======
+        assert view.get_success_url() == f"/users/{user.username}/"
+>>>>>>> seya/apiv1.0
 
     def test_get_object(self, user: User, rf: RequestFactory):
         view = UserUpdateView()
@@ -79,21 +83,33 @@ class TestUserRedirectView:
         request.user = user
 
         view.request = request
+<<<<<<< HEAD
         assert view.get_redirect_url() == f"/users/{user.pk}/"
+=======
+        assert view.get_redirect_url() == f"/users/{user.username}/"
+>>>>>>> seya/apiv1.0
 
 
 class TestUserDetailView:
     def test_authenticated(self, user: User, rf: RequestFactory):
         request = rf.get("/fake-url/")
         request.user = UserFactory()
+<<<<<<< HEAD
         response = user_detail_view(request, pk=user.pk)
+=======
+        response = user_detail_view(request, username=user.username)
+>>>>>>> seya/apiv1.0
 
         assert response.status_code == HTTPStatus.OK
 
     def test_not_authenticated(self, user: User, rf: RequestFactory):
         request = rf.get("/fake-url/")
         request.user = AnonymousUser()
+<<<<<<< HEAD
         response = user_detail_view(request, pk=user.pk)
+=======
+        response = user_detail_view(request, username=user.username)
+>>>>>>> seya/apiv1.0
         login_url = reverse(settings.LOGIN_URL)
 
         assert isinstance(response, HttpResponseRedirect)

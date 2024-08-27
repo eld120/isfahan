@@ -1,5 +1,9 @@
 # define an alias for the specific python version used in this file.
+<<<<<<< HEAD
 FROM docker.io/python:3.12.4-slim-bookworm AS python
+=======
+FROM docker.io/python:3.12.5-slim-bookworm AS python
+>>>>>>> seya/apiv1.0
 
 # Python build stage
 FROM python AS python-build-stage
@@ -71,6 +75,18 @@ COPY ./compose/local/django/start /start
 RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
 
+
+COPY ./compose/local/django/celery/worker/start /start-celeryworker
+RUN sed -i 's/\r$//g' /start-celeryworker
+RUN chmod +x /start-celeryworker
+
+COPY ./compose/local/django/celery/beat/start /start-celerybeat
+RUN sed -i 's/\r$//g' /start-celerybeat
+RUN chmod +x /start-celerybeat
+
+COPY ./compose/local/django/celery/flower/start /start-flower
+RUN sed -i 's/\r$//g' /start-flower
+RUN chmod +x /start-flower
 
 
 # copy application code to WORKDIR

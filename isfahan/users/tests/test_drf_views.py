@@ -6,7 +6,11 @@ from isfahan.users.models import User
 
 
 class TestUserViewSet:
+<<<<<<< HEAD
     @pytest.fixture()
+=======
+    @pytest.fixture
+>>>>>>> seya/apiv1.0
     def api_rf(self) -> APIRequestFactory:
         return APIRequestFactory()
 
@@ -29,6 +33,11 @@ class TestUserViewSet:
         response = view.me(request)  # type: ignore[call-arg, arg-type, misc]
 
         assert response.data == {
+<<<<<<< HEAD
             "url": f"http://testserver/api/users/{user.pk}/",
+=======
+            "username": user.username,
+            "url": f"http://testserver/api/users/{user.username}/",
+>>>>>>> seya/apiv1.0
             "name": user.name,
         }

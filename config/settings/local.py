@@ -11,7 +11,7 @@ DEBUG = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = env(
     "DJANGO_SECRET_KEY",
-    default="ec5JlyXBh6P0YcRPwR9ICTT0q3nJWUwB88x2HFOtFYeTi3DFdsAsmLL6TP9BPtWi",
+    default="XFvISuGQMLBafqen4FzFLw7TjHvFZGCIPA3vA5xZWyoDF9lzv6eNklwgJVz19zy6",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]  # noqa: S104
@@ -28,10 +28,10 @@ CACHES = {
 
 # EMAIL
 # ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = env(
-    "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend",
-)
+# https://docs.djangoproject.com/en/dev/ref/settings/#email-host
+EMAIL_HOST = env("EMAIL_HOST", default="mailpit")
+# https://docs.djangoproject.com/en/dev/ref/settings/#email-port
+EMAIL_PORT = 1025
 
 # WhiteNoise
 # ------------------------------------------------------------------------------
@@ -62,11 +62,22 @@ if env("USE_DOCKER") == "yes":
 
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
     INTERNAL_IPS += [".".join(ip.split(".")[:-1] + ["1"]) for ip in ips]
+    # RunServerPlus
+    # ------------------------------------------------------------------------------
+    # This is a custom setting for RunServerPlus to fix reloader issue in Windows docker environment
+    # Werkzeug reloader type [auto, watchdog, or stat]
+    RUNSERVERPLUS_POLLER_RELOADER_TYPE = 'stat'
+    # If you have CPU and IO load issues, you can increase this poller interval e.g) 5
+    RUNSERVERPLUS_POLLER_RELOADER_INTERVAL = 1
 
 # django-extensions
 # ------------------------------------------------------------------------------
 # https://django-extensions.readthedocs.io/en/latest/installation_instructions.html#configuration
 INSTALLED_APPS += ["django_extensions"]
+# Celery
+# ------------------------------------------------------------------------------
 
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html#task-eager-propagates
+CELERY_TASK_EAGER_PROPAGATES = True
 # Your stuff...
 # ------------------------------------------------------------------------------

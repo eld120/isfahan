@@ -6,9 +6,16 @@ from isfahan.users.models import User
 
 def test_user_detail(user: User):
     assert (
+<<<<<<< HEAD
         reverse("api:user-detail", kwargs={"pk": user.pk}) == f"/api/users/{user.pk}/"
     )
     assert resolve(f"/api/users/{user.pk}/").view_name == "api:user-detail"
+=======
+        reverse("api:user-detail", kwargs={"username": user.username})
+        == f"/api/users/{user.username}/"
+    )
+    assert resolve(f"/api/users/{user.username}/").view_name == "api:user-detail"
+>>>>>>> seya/apiv1.0
 
 
 def test_user_list():
