@@ -1,0 +1,7 @@
+# PostgreSQL
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=isfahan
+POSTGRES_USER=aPHkofLOGyASrAiGJxqvUuSGxqAXOCTI
+POSTGRES_PASSWORD=9qxNmRwn25JY49B0iYVi518HMDHOuDoA1MqlB5gNKhtnVkDiDVSy9IXhxKAe2kVw
