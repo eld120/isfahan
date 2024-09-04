@@ -1,5 +1,4 @@
 # ruff: noqa: ERA001, E501
-
 """Base settings to build other settings files upon."""
 
 from pathlib import Path
@@ -46,14 +45,17 @@ LOCALE_PATHS = [str(BASE_DIR / "locale")]
 # DATABASES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
-# DATABASES = {"default": env.db("DATABASE_URL")}
-# DATABASES["default"]["ATOMIC_REQUESTS"] = True
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    },
-}
+if env("USE_DOCKER") == "yes":  # intentionally not using sqlite locally
+    DATABASES = {"default": env.db("DATABASE_URL")}
+    DATABASES["default"]["ATOMIC_REQUESTS"] = True
+
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        },
+    }
 
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -145,7 +147,7 @@ AUTH_PASSWORD_VALIDATORS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    # "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -306,7 +308,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
     ),
-    # "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",  # or other pagination class
     "PAGE_SIZE": 10,  # Number of items per page
@@ -315,7 +317,7 @@ REST_FRAMEWORK = {
 # django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup
 CORS_URLS_REGEX = r"^/api/.*$"
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    "http://localhost:8088",
 ]
 # By Default swagger ui is available only to admin user(s). You can change permission classes to change that
 # See more configuration options at https://drf-spectacular.readthedocs.io/en/latest/settings.html#settings
