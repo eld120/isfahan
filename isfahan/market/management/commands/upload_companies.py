@@ -16,7 +16,7 @@ class Command(BaseCommand):
                 row = line.rstrip("\n").split("\t")
                 ticker, company = row[1], row[2]
                 if "." in ticker:
-                    ticker.replace(".", "-")
+                    ticker = ticker.replace(".", "-")
 
                 form = StockForm({"name": company, "ticker": ticker})
                 if form.is_valid():

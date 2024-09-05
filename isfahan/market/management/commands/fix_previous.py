@@ -6,18 +6,21 @@ from isfahan.market.models import StockPrice
 
 
 class Command(BaseCommand):
-    help = "get's the most recent market data from the Market Data API"
+    help = "updates the previous attribute for a StockPrice object"
 
     def handle(self, *args, **kwargs):
-        all_stocks = Stock.objects.all()
+        all_stocks = [stock.id for stock in Stock.objects.all()]
         try:
-            for stock in all_stocks:
-                all_prices = StockPrice.objects.filter(stock=stock).order_by("date")
+            for pk in all_stocks:
+                all_prices = StockPrice.objects.filter(stock__id=pk).order_by("date")
+                update_list = []
                 previous = None
                 for index, price in enumerate(all_prices):
                     if index > 0:
-                        StockPrice.objects.filter(id=price.id).update(previous=previous)
+                        price.previous = previous
+                        update_list.append(price)
                     previous = price
+                StockPrice.objects.bulk_update(update_list, ["previous"])
 
         except Exception as e:
             self.stdout.write(

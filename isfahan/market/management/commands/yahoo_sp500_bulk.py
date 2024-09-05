@@ -15,16 +15,17 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         all_stocks = {stock.ticker: stock.id for stock in Stock.objects.all()}
 
-        # handle errors below
         top_100 = yf.download(
             [ticker for ticker, _ in all_stocks.items()],
-            period="1d",
+            period="5d",
         ).to_dict()
 
         data = {}
 
         for key, val in top_100.items():
             noun, ticker = key
+            if "." in ticker:
+                ticker = ticker.replace(".", "-")
             if noun in ("Close", "Volume"):
                 for timestamp, value in val.items():
                     if (ticker, timestamp) not in data:
@@ -65,5 +66,5 @@ class Command(BaseCommand):
         if fail_flag:
             with Path.open("failed_transactions.json", "w") as file:
                 json.dump(failed_transactions, file)
-        StockPrice.objects.bulk_create(new_transactions)
+        StockPrice.objects.bulk_create(new_transactions, batch_size=500)
         self.stdout.write(self.style.SUCCESS("Successfully created stock price data"))
