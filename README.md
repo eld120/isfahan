@@ -95,3 +95,105 @@ The following details how to deploy this application.
 ### Docker
 
 See detailed [cookiecutter-django Docker documentation](http://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html).
+
+I have a google finance clone project and I need help refactoring the management command that I use to download/update the most recent market data using the `yfinance` library. Here are the Stock (represents a company and stock ticker) and StockPrice (represents a company's stock price on a given day) models:
+
+```python
+# models.py
+class Stock(models.Model):
+    name = models.CharField(max_length=50)
+    ticker = models.CharField(max_length=6, unique=True)
+
+    def __str__(self):
+        return str(self.name)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+class StockPrice(models.Model):
+    stock = models.ForeignKey(
+        "market.Stock",
+        on_delete=models.CASCADE,
+        unique_for_date="date",
+    )
+    previous = models.ForeignKey("self", on_delete=models.CASCADE, null=True)
+    price = models.DecimalField(max_digits=19, decimal_places=4)
+    date = models.DateField(auto_now=False, auto_now_add=False)
+    volume = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.stock} {self.date}"
+
+    def save(self, *args, **kwargs):
+        try:
+            previous_date = self.objects.values("date").distinct().order_by("-date")[0]
+            self.previous = self.objects.get(stock=self.stock, date=previous_date)
+        except ObjectDoesNotExist:
+            pass
+        super().save(*args, **kwargs)
+```
+
+I've chosen to calculate the difference in stock prices by storing a reference to the previous day's stock price on every StockPrice record. The management command I have does not update/populate the `self.previous` attribute on the new `StockPrice` records because I'm using the `bulk_create()` method. I need you to refactor my `market_download` management command to populate/update all fields on the StockPrice model and ideally while still using the `bulk_create` method.
+
+```python
+# management/commands/market_download.py
+class Command(BaseCommand):
+    help = "get's the most recent market data from Yahoo Finance via the yfinance library"
+
+    def handle(self, *args, **kwargs):
+        all_stocks = {stock.ticker: stock.id for stock in Stock.objects.all()}
+
+        top_100 = yf.download(
+            [ticker for ticker, _ in all_stocks.items()],
+            period="5d",
+        ).to_dict()
+
+        data = {}
+
+        for key, val in top_100.items():
+            noun, ticker = key
+            if "." in ticker:
+                ticker = ticker.replace(".", "-")
+            if noun in ("Close", "Volume"):
+                for timestamp, value in val.items():
+                    if (ticker, timestamp) not in data:
+                        data[(ticker, timestamp)] = {
+                            "price" if noun == "Close" else "volume": value,
+                        }
+                        data[(ticker, timestamp)]["stock"] = all_stocks[ticker]
+                    else:
+                        data[(ticker, timestamp)][
+                            "price" if noun == "Close" else "volume"
+                        ] = value
+        new_transactions = []
+        failed_transactions = []
+        fail_flag = False
+        for k, v in data.items():
+            ticker, timestamp = k
+            form = StockPriceForm(
+                {
+                    "stock": v["stock"],
+                    "price": round(v["price"], 4),
+                    "date": timestamp,
+                    "volume": v["volume"],
+                },
+            )
+            if form.is_valid():
+                new_transactions.append(StockPrice(**form.cleaned_data))
+            else:
+                fail_flag = True
+                failed_transactions.append(
+                    {
+                        "stock": v["stock"],
+                        "price": v["price"],
+                        "date": timestamp.to_pydatetime().strftime("%m/%d/%Y"),
+                        "volume": v["volume"],
+                        "erros": form.errors,
+                    },
+                )
+        if fail_flag:
+            with Path.open("failed_transactions.json", "w") as file:
+                json.dump(failed_transactions, file)
+        StockPrice.objects.bulk_create(new_transactions, batch_size=500)
+        self.stdout.write(self.style.SUCCESS("Successfully created stock price data"))
+```
