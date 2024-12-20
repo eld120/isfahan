@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 import json
 from pathlib import Path
 
@@ -10,19 +11,38 @@ from isfahan.market.models import StockPrice
 
 
 class Command(BaseCommand):
-    help = "get's the most recent market data from the Market Data API"
+    """
+    # ... (Your existing data validation and bulk creation code)
+
+    # Fetch and sort the newly created stock prices
+    new_stock_prices = StockPrice.objects.filter(id__in=[price.id for price in new_transactions]).order_by('stock', 'date')
+
+    # Iterate and link the 'previous' field
+    stock_prices_by_stock = {}  # Keep track of previous prices for each stock
+    for price in new_stock_prices:
+        if price.stock.id in stock_prices_by_stock:
+            price.previous = stock_prices_by_stock[price.stock.id]
+        stock_prices_by_stock[price.stock.id] = price
+
+    # Bulk update to save the changes
+    StockPrice.objects.bulk_update(new_stock_prices, ['previous'])
+    """
+
+    help = (
+        "get's the most recent market data from Yahoo Finance via the yfinance library"
+    )
 
     def handle(self, *args, **kwargs):
         all_stocks = {stock.ticker: stock.id for stock in Stock.objects.all()}
 
-        top_100 = yf.download(
+        all_tickers = yf.download(
             [ticker for ticker, _ in all_stocks.items()],
             period="5d",
         ).to_dict()
 
         data = {}
 
-        for key, val in top_100.items():
+        for key, val in all_tickers.items():
             noun, ticker = key
             if "." in ticker:
                 ticker = ticker.replace(".", "-")

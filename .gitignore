@@ -279,3 +279,4 @@ isfahan/media/
 .envs/*
 !.envs/.local/
 venv_intellisense/
+db.sqlite3

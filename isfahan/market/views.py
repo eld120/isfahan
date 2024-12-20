@@ -1,7 +1,11 @@
+# ruff: noqa: DTZ005
+from datetime import datetime
+from datetime import timedelta
 from decimal import Decimal
 from decimal import getcontext
 
 from django.db.models import Q
+from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -38,6 +42,7 @@ class StockPriceViewset(viewsets.ModelViewSet):
     model = StockPrice
     serializer_class = StockPriceSerializer
     queryset = StockPrice.objects.all()
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     @action(detail=False, methods=["get"])
     def get_market_trends(self, request):
@@ -69,4 +74,36 @@ class StockPriceViewset(viewsets.ModelViewSet):
             for record in serializer.data
         ]
 
-        return Response(stock_prices)
+        return Response({"results": stock_prices})
+
+    @action(detail=False, methods=["get"])
+    def get_today(self, request):
+        todays_stocks = StockPrice.objects.select_related("stock", "previous").filter(
+            date=StockPrice.objects.latest("date").date,
+        )
+        serializer = StockPriceSerializer(todays_stocks, many=True)
+        getcontext().prec = 4
+        stock_prices = [
+            {
+                "company": record["stock"]["name"],
+                "ticker": record["stock"]["ticker"],
+                "date": record["date"],
+                "price": Decimal(record["price"]),
+                "percentage": 100
+                * (Decimal(record["price"]) / Decimal(record["previous"]["price"]) - 1),
+                "change": Decimal(record["price"])
+                - Decimal(record["previous"]["price"]),
+                "volume": int(record["volume"]),
+            }
+            for record in serializer.data
+        ]
+        return Response({"results": stock_prices})
+
+    @action(detail=False, methods=["get"])
+    def get_past_weeks(self, request):
+        past_week = StockPrice.objects.filter(
+            stock__ticker=request.query_params.get("ticker", "").upper(),
+            date__gte=datetime.now().date() - timedelta(days=31),
+        )
+        serializer = StockPriceSerializer(past_week, many=True)
+        return Response({"results": serializer.data})

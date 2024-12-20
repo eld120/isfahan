@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # isfahan/
 APPS_DIR = BASE_DIR / "isfahan"
 env = environ.Env()
-
+env.read_env(str(BASE_DIR / ".env"))
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
 if READ_DOT_ENV_FILE:
     # OS environment variables take precedence over variables from .env
@@ -317,7 +317,9 @@ REST_FRAMEWORK = {
 # django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup
 CORS_URLS_REGEX = r"^/api/.*$"
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8088",
+    "http://localhost:3000",
+    "http://localhost:3033",
+    "http://localhost:3003",
 ]
 # By Default swagger ui is available only to admin user(s). You can change permission classes to change that
 # See more configuration options at https://drf-spectacular.readthedocs.io/en/latest/settings.html#settings

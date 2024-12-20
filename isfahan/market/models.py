@@ -7,7 +7,7 @@ from django.utils.text import slugify
 
 class Stock(models.Model):
     """
-    Stock Data from the Market Data API -> Stock Model
+    Stock name and ticker for a given company
 
     name : User Defined/Provided
     symbol : ticker
@@ -62,8 +62,6 @@ class StockImport(models.Model):
 class StockPrice(models.Model):
     """
     Represents a Stock price at a given time
-    Import Stock data from the Market Data API -> StockImport Model
-
     stock : get_model_or_404(symbol, Stock) # something like this
     price : Close
     date : Timestamp
